@@ -1,0 +1,11 @@
+name: abil-tutorial-env
+channels:
+- conda-forge
+dependencies:
+- python=3.12
+- ipykernel
+- cartopy
+- matplotlib
+- pip
+- pip:
+  - abil

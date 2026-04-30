@@ -1,0 +1,66 @@
+---
+  root: /home/mv23682/Documents/Abil_tutorial/
+  local_root: /home/mv23682/Documents/Abil_tutorial/
+
+
+  run_name: pp_na
+
+  path_out:  ModelOutput/ #root + folder
+  path_in:  predictions/ens/ #root + folder
+
+  prediction: data/env_data_na.csv #root + folder
+  targets: data/targets.csv #root + folder
+  training: data/training_na.csv
+
+  predictors: ["temperature", "no3", "o2", "PAR"]
+ 
+    
+  verbose: 1
+  seed : 1 # random seed
+  n_threads : 10 # how many cpu threads to use, reduce when using higher cv's in MAPIE
+  cv : 10
+
+  ensemble_config: 
+    classifier: False
+    regressor: True
+    m1: "rf"
+    m2: "xgb"
+    m3: "knn"
+     
+  upsample: False
+  stratify: False
+
+  reg_scoring:
+   R2: r2
+   MAE: neg_mean_absolute_error
+   RMSE: neg_root_mean_squared_error
+
+  param_grid:
+    rf_param_grid:
+      reg_param_grid:
+        n_estimators: [250]
+        max_features:  [0.5, 1.0]
+        max_depth: [25, 51]
+        min_samples_leaf: [1, 5]
+        max_samples: [0.9, 1.0]   
+
+    xgb_param_grid:
+      reg_param_grid:  
+        n_estimators: [100]      
+        learning_rate: [0.1, 0.2]
+        max_depth: [25, 51]
+        subsample: [0.5, 1.0]
+        colsample_bytree: [0.9, 1.0]
+        reg_alpha: [0, 0.1]       
+        gamma: [0] 
+
+
+    knn_param_grid:
+      reg_param_grid:  
+        max_samples: [0.5, 1.0]
+        max_features: [2, 4]
+        estimator__n_neighbors: [3, 4]
+        estimator__p:  [1, 2]
+        estimator__weights: ["distance"]
+
+  knn_bagging_estimators: 60
