@@ -1,15 +1,20 @@
 #%%
-import xarray as xr
-import numpy as np
-import os
+from pathlib import Path
 
-# List of dataset file paths, to add more fields, just add path to .nc file
-# Data must already be on a common grid (example data is 180x360x41x12)
+import numpy as np
+import xarray as xr
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+DATA_DIR = PROJECT_ROOT / "data"
+REGRIDDED_DATA_DIR = DATA_DIR / "regridded_data"
+
+# List of dataset file paths. To add more fields, add another .nc file here.
+# Data must already be on a common grid (example data is 180x360x41x12).
 file_paths = [
-    '/home/mv23682/Documents/Abil_Wiseman2025/scripts/env_data_processing/regridded_data/temperature.nc',
-    '/home/mv23682/Documents/Abil_Wiseman2025/scripts/env_data_processing/regridded_data/no3.nc',
-    '/home/mv23682/Documents/Abil_Wiseman2025/scripts/env_data_processing/regridded_data/o2.nc',
-    '/home/mv23682/Documents/Abil_Wiseman2025/scripts/env_data_processing/regridded_data/PAR.nc', 
+    REGRIDDED_DATA_DIR / "temperature.nc",
+    REGRIDDED_DATA_DIR / "no3.nc",
+    REGRIDDED_DATA_DIR / "o2.nc",
+    REGRIDDED_DATA_DIR / "PAR.nc",
 ]
 
 # Open all datasets
@@ -22,7 +27,7 @@ aligned_datasets = xr.align(*datasets, join='inner')
 merged_ds = xr.merge(aligned_datasets)
 
 # List of variables of interest
-variables_of_interest = ["temperature","no3","o2","PAR"]  # Add all relevant variable names
+variables_of_interest = ["temperature", "no3", "o2", "PAR"]
 
 # Create a mask for where any of the variables are NaN
 variables_mask = xr.concat([merged_ds[var].isnull() for var in variables_of_interest], dim='var').any(dim='var')
@@ -39,7 +44,7 @@ ds_so = merged_ds.where(
     (merged_ds.lat <= -35) &
     (merged_ds.depth <= 25) &
     (merged_ds.time.isin([11, 12, 1, 2, 3])),
-    drop = True
+    drop=True
 )
 
 ds_na = merged_ds.where(
@@ -58,11 +63,15 @@ ds_pac = merged_ds.where(
     drop=True
 )
 
-def output_data(ds,filename):
+
+def output_data(ds, filename):
+    filename = Path(filename)
+    filename.parent.mkdir(parents=True, exist_ok=True)
+
     df = ds.to_dataframe()
     df = df.reset_index()
     df.dropna(inplace=True)
-    df.to_csv(os.path.join(filename + ".csv"),index=False)
+    df.to_csv(filename.with_suffix(".csv"), index=False)
 
     ds['lat'].attrs['units'] = 'degrees_north'
     ds['lat'].attrs['long_name'] = 'latitude'
@@ -85,18 +94,18 @@ def output_data(ds,filename):
 
     ds['o2'].attrs['units'] = 'umol.kg-1'
     ds['o2'].attrs['long_name'] = 'dissolved oxygen'
-    ds['o2'].attrs['description']= 'Objectively analyzed mean fields for mole_concentration_of_dissolved_molecular_oxygen_in_sea_water from WOA18 of Garcia et al. (2019)'
+    ds['o2'].attrs['description'] = 'Objectively analyzed mean fields for mole_concentration_of_dissolved_molecular_oxygen_in_sea_water from WOA18 of Garcia et al. (2019)'
 
     ds['PAR'].attrs['units'] = 'W.m-2'
     ds['PAR'].attrs['long_name'] = 'photosynthetically activate radiation'
     ds['PAR'].attrs['description'] = 'RS_PAR_ESM-based_fill_monthly_clim_1998-2022 from Castant et al. (2024)'
 
-    # Save the result to a new NetCDF file
-    ds.to_netcdf(os.path.join(filename + ".nc"))
+    ds.to_netcdf(filename.with_suffix(".nc"))
 
-output_data(ds_so,"/home/mv23682/Documents/Abil_tutorial/data/env_data_so")
-output_data(ds_na,"/home/mv23682/Documents/Abil_tutorial/data/env_data_na")
-output_data(ds_pac,"/home/mv23682/Documents/Abil_tutorial/data/env_data_pac")
+
+output_data(ds_so, DATA_DIR / "env_data_so")
+output_data(ds_na, DATA_DIR / "env_data_na")
+output_data(ds_pac, DATA_DIR / "env_data_pac")
 
 print('fin')
 # %%
