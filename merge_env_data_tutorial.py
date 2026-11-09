@@ -40,29 +40,52 @@ for var in variables_of_interest:
 # For tutorial: Southern Ocean (Lat < 40S) Summer (D, J, F), Subpolar North Atlantic (Lat 50-65N) (Lon 40W-0) Summer (JJA)
 # Tropical and Subtropical Eastern Pacific (15S-15N) (145W-80W) ()
 
+ds = merged_ds
+
+ds_bats = merged_ds.where(
+    (merged_ds.lat >= 30) & (merged_ds.lat <= 32) &
+    (merged_ds.lon >= -65) & (merged_ds.lon <= -63) &
+    (merged_ds.depth <= 100) &
+    (merged_ds.time.isin([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])),
+    drop=True
+)
+
+ds_hots = merged_ds.where(
+    (merged_ds.lat >= 21) & (merged_ds.lat <= 23) &
+    (merged_ds.lon >= -159) & (merged_ds.lon <= -157) &
+    (merged_ds.depth <= 100) &
+    (merged_ds.time.isin([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])),
+    drop=True
+)
+
 ds_so = merged_ds.where(
-    (merged_ds.lat <= -35) &
-    (merged_ds.depth <= 25) &
-    (merged_ds.time.isin([11, 12, 1, 2, 3])),
+    (merged_ds.lat <= -40) &
+    (merged_ds.depth <= 0) &
+    (merged_ds.time.isin([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])),
     drop=True
 )
 
 ds_na = merged_ds.where(
-    (merged_ds.lat >= 45) & (merged_ds.lat <= 70) &
+    (merged_ds.lat >= 35) & (merged_ds.lat <= 70) &
     (merged_ds.lon >= -60) & (merged_ds.lon <= 0) &
-    (merged_ds.depth <= 25) &
+    (merged_ds.depth <= 0) &
     (merged_ds.time.isin([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])),
     drop=True
 )
 
 ds_pac = merged_ds.where(
     (merged_ds.lat >= -15) & (merged_ds.lat <= 15) &
-    (merged_ds.lon >= -150) & (merged_ds.lon <= -75) &
-    (merged_ds.depth <= 25) &
-    (merged_ds.time.isin([8, 9, 10, 11, 12])),
+    (merged_ds.lon >= -100) & (merged_ds.lon <= -75) &
+    (merged_ds.depth <= 0) &
+    (merged_ds.time.isin([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])),
     drop=True
 )
 
+ds_surf = merged_ds.where(
+    (merged_ds.depth <= 0) &
+    (merged_ds.time.isin([4])),
+    drop=True
+)
 
 def output_data(ds, filename):
     filename = Path(filename)
@@ -102,10 +125,13 @@ def output_data(ds, filename):
 
     ds.to_netcdf(filename.with_suffix(".nc"))
 
-
+output_data(ds_bats, DATA_DIR / "env_data_bats")
+output_data(ds_hots, DATA_DIR / "env_data_hots")
 output_data(ds_so, DATA_DIR / "env_data_so")
 output_data(ds_na, DATA_DIR / "env_data_na")
 output_data(ds_pac, DATA_DIR / "env_data_pac")
+output_data(ds, DATA_DIR / "env_data")
+output_data(ds_surf, DATA_DIR / "env_data_surf")
 
 print('fin')
 # %%

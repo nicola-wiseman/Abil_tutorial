@@ -1,15 +1,13 @@
 ---
   root: ./
-  run_name: ghux_so #update for specific run name
+  run_name: pro_pac #update for specific run name
 
   path_out:  ModelOutput/ #root + folder
   path_in:  predictions/ens/ #root + folder
 
-  prediction: data/env_data_so.csv #root + folder
-  prediction: data/env_data_so.csv #root + folder
-  targets: data/traits.csv #root + folder
-  training: data/training_g_hux_so.csv
-  training: data/training_g_hux_so.csv
+  prediction: data/env_data_na.csv #root + folder
+  targets: data/traits_pro.csv #root + folder
+  training: data/training_pro.csv #root + folder
 
   predictors: ["temperature", "no3", "o2", "PAR"]
 
@@ -37,36 +35,41 @@
    accuracy: balanced_accuracy
 
   param_grid:
+
     rf_param_grid:
       reg_param_grid:
         n_estimators: [100]
         max_features:  [0.8]
         max_depth: [51]
         min_samples_leaf: [1]
-        max_samples: [0.9]     
+        max_samples: [0.9]    
+
       clf_param_grid:  
         n_estimators: [250]
-        max_features:  [ 1]
+        max_features:  [1.0]
         max_depth: [51]
         min_samples_leaf: [1]
         max_samples: [0.9]     
+
     xgb_param_grid:
       reg_param_grid:  
         learning_rate: [0.1]
         n_estimators: [100]
         max_depth: [7]
         subsample: [0.4, 0.6]
-        colsample_bytree: [1]
+        colsample_bytree: [1.0]
         gamma: [0] 
         reg_alpha: [0]
+
       clf_param_grid:  
         learning_rate: [0.1]
         n_estimators: [100]
         max_depth: [51]
-        subsample: [ 1]
+        subsample: [1.0]
         colsample_bytree: [0.9]
         gamma: [0] 
         reg_alpha: [0]
+
     knn_param_grid:
       reg_param_grid:  
         max_samples: [0.9]
@@ -75,11 +78,13 @@
         estimator__n_neighbors: [3]
         estimator__p:  [1]        
         estimator__weights: ["distance"]
+
       clf_param_grid:  
         max_samples: [0.9]
         max_features: [0.8]
         estimator__leaf_size: [30]
-        estimator__n_neighbors: [3,]
+        estimator__n_neighbors: [3]
         estimator__p:  [1]        
         estimator__weights: ["distance"]
+
   knn_bagging_estimators: 40
